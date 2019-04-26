@@ -62,13 +62,13 @@ static const flash_algo_t flash_algo_config = {
 };
 
 static const sector_info_t sectors_info[] = {
-    {0x18000000, 0x1000},
+    {MBED_ROM_START, 0x1000},
 };
 
 static const flash_target_config_t flash_target_config = {
     .page_size  = 0x100,
-    .flash_start = 0x18000000,
-    .flash_size = 0x100000,
+    .flash_start = MBED_ROM_START,
+    .flash_size = MBED_ROM_SIZE,
     .sectors = sectors_info,
     .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };

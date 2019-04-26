@@ -53,4 +53,8 @@ extern uint32_t                 __HeapLimit[];
 #error "no toolchain defined"
 #endif
 
+#if defined(TARGET_UNO_91H)
+#define INITIAL_SP  (MBED_RAM_START+MBED_RAM_SIZE)
+#endif
+
 #endif  // MBED_MBED_RTX_H
