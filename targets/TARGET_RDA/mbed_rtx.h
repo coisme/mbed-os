@@ -43,11 +43,7 @@ extern uint32_t                 Image$$ARM_LIB_HEAP$$ZI$$Length[];
 #endif
 
 #if defined(TARGET_UNO_91H)
-/* Stack Pointer */
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x120000UL)
-//#define INITIAL_SP              (0x1A8000UL)
-#endif
+#define INITIAL_SP  (MBED_RAM_START+MBED_RAM_SIZE)
 #endif
 
 #endif  // MBED_MBED_RTX_H

@@ -168,12 +168,21 @@ void SystemCoreClockUpdate (void)            /* Get Core/Bus Clock Frequency    
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
+
+#if defined(__GNUC__)
+extern uint32_t __isr_vector[];        // defined in the start up routine, startup_RDA5981C.S
+#define RDA5981C_NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)__isr_vector)
+#else
+#error "Flash vector address not set for this toolchain"
+#endif
+
 void SystemInit (void)
 {
 #if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
     SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access */
 #endif /* ((__FPU_PRESENT == 1) && (__FPU_USED == 1)) */
-    SCB->VTOR  = RDA_CODE_BASE;                       /* vector table in flash      */
+
+    SCB->VTOR =  RDA5981C_NVIC_FLASH_VECTOR_ADDRESS;  /* vector table in flash */
     NVIC_SetPriorityGrouping(0x06);                   /* 1 bit for pre-emption pri  */
 
     __enable_irq();

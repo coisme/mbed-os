@@ -1,25 +1,34 @@
 /* Linker script for mbed RDA5981C */
 
-#if !defined(MBED_BOOT_STACK_SIZE)
-    #define MBED_BOOT_STACK_SIZE 0x400
-#endif
+/* Tools provide -DMBED_ROM_START=xxx -DMBED_ROM_SIZE=xxx -DMBED_RAM_START=xxx -DMBED_RAM_SIZE=xxx */
 
-STACK_SIZE = MBED_BOOT_STACK_SIZE;
+#define VECTORS     31   /* This value must match NVIC_NUM_VECTORS */
+
+/* Common - Do not change */
 
 #if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x18001000
+  #define MBED_APP_START  MBED_ROM_START
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 2000K
+  #define MBED_APP_SIZE  MBED_ROM_SIZE
 #endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    /* This value is normally defined by the tools 
+       to 0x1000 for bare metal and 0x400 for RTOS */
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+/* Round up VECTORS_SIZE to 8 bytes */
+#define VECTORS_SIZE (((VECTORS * 4) + 7) & 0xFFFFFFF8)
 
 /* Linker script to configure memory regions. */
 MEMORY
 {
     /* If ICache is enable, use virtual flash base address */
     /* Use partition index: 0 */
-    FLASH (rx)      : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+    FLASH (rx)      : ORIGIN = MBED_APP_START, LENGTH = MBED_ROM_SIZE
     /* Use partition index: 1 */
     /* FLASH (rx)      : ORIGIN = 0x181F5000, LENGTH = 2000K */
 
@@ -29,7 +38,8 @@ MEMORY
     /* Use partition index: 1 */
     /* FLASH (rx)      : ORIGIN = 0x141F5000, LENGTH = 2000K */
 
-    IRAM (rwx)      : ORIGIN = 0x00100080, LENGTH = (128K - 0x80)
+    /* IRAM (rwx)      : ORIGIN = 0x00100080, LENGTH = (128K - 0x80) */
+    IRAM(rwx)       : ORIGIN = MBED_RAM_START + VECTORS_SIZE, LENGTH = MBED_RAM_SIZE - VECTORS_SIZE
     DRAM (rwx)      : ORIGIN = 0x00180000, LENGTH = 160K
     MACLIB_RAM(rwx) : ORIGIN = 0x40100000, LENGTH = 99K
     AES_RAM(rwx)    : ORIGIN = 0x40118C00, LENGTH = 1K
@@ -162,7 +172,7 @@ SECTIONS
     /* Set stack top to end of IRAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(IRAM) + LENGTH(IRAM);
-    __StackLimit = __StackTop - STACK_SIZE;
+    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + stack exceeds RAM limit */
@@ -174,7 +184,6 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
-        . = ORIGIN(DRAM) + LENGTH(DRAM);
         __HeapLimit = .;
     } > DRAM
     PROVIDE(__sbrk_start = ADDR(.heap));

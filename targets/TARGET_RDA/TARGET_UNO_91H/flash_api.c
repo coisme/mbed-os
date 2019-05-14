@@ -18,14 +18,6 @@
 #include "flash_data.h"
 #include "mbed_critical.h"
 
-#ifndef MBED_ROM_SIZE
-#define MBED_FLASH_SIZE 0x100000
-#else
-//there is 4K BOOTROM at beginning of the flash
-#define MBED_FLASH_SIZE (MBED_ROM_SIZE+0x1000)
-#endif
-
-
 // This file is automagically generated
 
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
@@ -70,13 +62,13 @@ static const flash_algo_t flash_algo_config = {
 };
 
 static const sector_info_t sectors_info[] = {
-    {0x18000000, 0x1000},
+    {MBED_ROM_START, 0x1000},
 };
 
 static const flash_target_config_t flash_target_config = {
     .page_size  = 0x100,
-    .flash_start = 0x18000000,
-    .flash_size = MBED_FLASH_SIZE,
+    .flash_start = MBED_ROM_START,
+    .flash_size = MBED_ROM_SIZE,
     .sectors = sectors_info,
     .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
 };
