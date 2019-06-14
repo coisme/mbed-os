@@ -199,10 +199,6 @@ void rda_ccfg_gp(unsigned char gp, unsigned short cfg)
 int rda_ccfg_boot(void)
 {
     int ret = 1;
-    int abort_flag = rda_ccfg_abort_hdlr();
-    if(!abort_flag) {
-        rda_ccfg_pdi2c();
-    }
     /*close usb polling*/
     RDA_GPIO->CTRL &= ~(0x01UL << 12);
     rda_ccfg_ck();
